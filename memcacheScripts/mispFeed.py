@@ -24,7 +24,7 @@ class mispToMemcache():
         data=response.json()
         if data:
           for item in data["response"]["Attribute"]:
-            client.set(str('misp-' + item['type'] + '-' + item['value']), , 150)
+            client.set(str('misp-' + item['type'] + '-' + item['value']), 'misp-' + item['type'], 150)
 
       except Exception as e:
         with open('/var/log/misppullLog.txt','a') as file:
