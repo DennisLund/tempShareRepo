@@ -15,17 +15,32 @@ class ransomwareToMemcache():
 
     for dt in dataTypes:
       url='https://ransomwaretracker.abuse.ch/downloads/RW_{0}BL.txt'.format(dt)
+      rwtvalue='ransomwaretracker-'
+      if(dt=='DOM'):
+        rwtvalue=rwtvalue + 'domain'
+      if(dt=='IP'):
+        rwtvalue=rwtvalue + 'ip'
+      if(dt=='URL'):
+        rwtvalue=rwtvalue + 'url'
+
       try:
         response=requests.get(url)
         if(response):
           for line in response.text.splitlines():
             if(line.startswith('#') == False):
-              if(dt=='DOM'):
-                client.set(str('ransomwaretracker-domain-' + line),'ransomwaretracker-domain', 150)
-              if(dt=='IP'):
-                client.set(str('ransomwaretracker-ip-' + line),'ransomwaretracker-ip', 150)
-              if(dt=='URL'):
-                client.set('ransomwaretracker-url-' + str(line),'ransomwaretracker-url', 150)
+              valueCheck=client.get(str(line))
+              if(valueCheck):
+                valuearr=[]
+                temparr=[]
+                valuearr.append(valueCheck)
+                valuearr.append(rwtvalue)
+                for item in valuearr:
+                  if item not in temparr:
+                    temparr.append(item)
+                client.set(str(line),temparr, 2100)
+              else:
+                client.set(str(line),rwtvalue, 2100)
+
       except Exception as e:
         with open('/var/log/misppullLog.txt','a') as file:
           file.write('{0} - ransomwareTrackerFeed-script failed with error: {1} \n'.format(str(time.asctime()), str(e)))
@@ -33,3 +48,5 @@ class ransomwareToMemcache():
 
 if __name__ == '__main__':
   ransomwareToMemcache().run()
+
+
