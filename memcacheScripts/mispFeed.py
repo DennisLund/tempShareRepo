@@ -14,7 +14,7 @@ class mispToMemcache():
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
     client = Client(('127.0.0.1', 11211))
-    mispKey='hwwcBfywoEUHQC8Mf097y8DXqWE1k3mUXLIbdLsZ'
+    mispKey=''
     dataTypes={'domain', 'ip-%'}
 
     for dt in dataTypes:
