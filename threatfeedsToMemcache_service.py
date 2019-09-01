@@ -27,8 +27,6 @@ if __name__ == '__main__':
       for entry in os.listdir(path):
         currentfile=path+entry
         execfile(currentfile)
-        with open('/var/log/misppullLog.txt','a') as logfile:
-          logfile.write('{0} - Executing {1} \n'.format(time.asctime(), entry))
 
     except Exception as e:
       with open('/var/log/misppullLog.txt','a') as file:
