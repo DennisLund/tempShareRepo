@@ -16,7 +16,19 @@ class talosToMemcache():
       response=requests.get(url)
       if(response):
         for line in response.text.splitlines():
-          client.set(str('talos-ip-' + line),'talos-ip', 150)
+          valueCheck=client.get(str(line))
+          if(valueCheck):
+            valuearr=[]
+            temparr=[]
+            talosvalue='talos-ip'
+            valuearr.append(valueCheck)
+            valuearr.append(talosvalue)
+            for item in valuearr:
+              if item not in temparr:
+                temparr.append(item)
+            client.set(str(line),temparr, 2100)
+          else:
+            client.set(str(line),'talos-ip', 2100)
 
     except Exception as e:
       with open('/var/log/misppullLog.txt','a') as file:
@@ -24,3 +36,4 @@ class talosToMemcache():
 
 if __name__ == '__main__':
   talosToMemcache().run()
+
