@@ -14,10 +14,11 @@ class mispToMemcache():
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
     client = Client(('127.0.0.1', 11211))
+    mispKey='<MISP API-KEY>'
     dataTypes={'domain', 'ip-%'}
 
     for dt in dataTypes:
-      headers={'Authorization':'hwwcBfywoEUHQC8Mf097y8DXqWE1k3mUXLIbdLsZ','Accept':'application/json','Content-type':'application/json'}
+      headers={'Authorization':mispKey,'Accept':'application/json','Content-type':'application/json'}
       data=json.dumps({"returnFormat":"json","type":dt,"tags":"Feed-%","to_ids":"yes","includeEventTags":"yes","includeContext":"yes"})
       try:
         response = requests.post('https://192.168.0.13/attributes/restSearch',headers=headers,data=data,verify=False)
