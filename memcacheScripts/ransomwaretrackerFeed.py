@@ -26,27 +26,27 @@ class ransomwareToMemcache():
       try:
         response=requests.get(url)
         if(response):
+          responseArr=[]
           for line in response.text.splitlines():
             if(line.startswith('#') == False):
-              valueCheck=client.get(str(line))
-              if(valueCheck):
-                valuearr=[]
-                temparr=[]
-                valuearr.append(valueCheck)
-                valuearr.append(rwtvalue)
-                for item in valuearr:
-                  if item not in temparr:
-                    temparr.append(item)
-                client.set(str(line),temparr, 2100)
-              else:
-                client.set(str(line),rwtvalue, 2100)
-
+              responseArr.append(line)
+          valueCheck=client.get_many(responseArr)
+          for k in responseArr:
+            valueArr=[]
+            tempArr=[]
+            tempArr.append(rwtvalue)
+            if k in valueCheck:
+              val=valueCheck[k].decode()
+              for key in val:
+                valueArr.append(key)
+              for item in valueArr:
+                if item not in tempArr:
+                  tempArr.append(item)
+            client.set(k,tempArr, 300)
       except Exception as e:
         with open('/var/log/misppullLog.txt','a') as file:
           file.write('{0} - ransomwareTrackerFeed-script failed with error: {1} \n'.format(str(time.asctime()), str(e)))
 
-
 if __name__ == '__main__':
   ransomwareToMemcache().run()
-
 
