@@ -11,24 +11,28 @@ class talosToMemcache():
 
     client = Client(('127.0.0.1', 11211))
     url='https://talosintelligence.com/documents/ip-blacklist'
+    talosvalue='talos-ip'
 
     try:
       response=requests.get(url)
       if(response):
+        responseArr=[]
         for line in response.text.splitlines():
-          valueCheck=client.get(str(line))
-          if(valueCheck):
-            valuearr=[]
-            temparr=[]
-            talosvalue='talos-ip'
-            valuearr.append(valueCheck)
-            valuearr.append(talosvalue)
-            for item in valuearr:
-              if item not in temparr:
-                temparr.append(item)
-            client.set(str(line),temparr, 2100)
-          else:
-            client.set(str(line),'talos-ip', 2100)
+          if(line.startswith('#') == False):
+            responseArr.append(line)
+        valueCheck=client.get_many(responseArr)
+        for k in responseArr:
+          valueArr=[]
+          tempArr=[]
+          tempArr.append(talosvalue)
+          if k in valueCheck:
+            val=valueCheck[k].decode()
+            for key in val:
+              valueArr.append(key)
+            for item in valueArr:
+              if item not in tempArr:
+                tempArr.append(item)
+          client.set(k,tempArr, 300)
 
     except Exception as e:
       with open('/var/log/misppullLog.txt','a') as file:
@@ -36,4 +40,3 @@ class talosToMemcache():
 
 if __name__ == '__main__':
   talosToMemcache().run()
-
