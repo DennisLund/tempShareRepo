@@ -6,7 +6,6 @@ import os
 import traceback
 import importlib
 
-
 def execfile(filepath, globals=None, locals=None):
     if globals is None:
         globals = {}
@@ -18,6 +17,7 @@ def execfile(filepath, globals=None, locals=None):
         exec(compile(file.read(), filepath, 'exec'), globals, locals)
 
 
+
 if __name__ == '__main__':
   path='/opt/scripts/memcacheScripts/'
   run_indefinitely = True
@@ -26,9 +26,16 @@ if __name__ == '__main__':
     try:
       for entry in os.listdir(path):
         currentfile=path+entry
+#        importlib.reload(currentfile)
+        with open('/var/log/misppullLog.txt','a') as logfile:
+          logfile.write('{0} - Executing {1} \n'.format(time.asctime(), entry))
         execfile(currentfile)
-
+#      try:
+#        with open(currentfile) as scriptfile:
+#          code=compile(scriptfile.read(), currentfile, 'exec')
+#          exec(code)
     except Exception as e:
       with open('/var/log/misppullLog.txt','a') as file:
+#        file.write('testwrite...\n')
         file.write('{0} - {1} failed with error: {2} \n'.format(str(time.asctime()), currentfile, str(traceback.format_exc())))
-    time.sleep(60)
+    time.sleep(120)
