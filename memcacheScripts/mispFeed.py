@@ -14,36 +14,46 @@ class mispToMemcache():
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
     client = Client(('127.0.0.1', 11211))
-    mispKey=''
+    mispKey='<MISPKEY>'
     dataTypes={'domain', 'ip-%'}
+    mispAddress='192.168.0.13'
 
     for dt in dataTypes:
-      headers={'Authorization':mispKey,'Accept':'application/json','Content-type                                                                                      ':'application/json'}
-      data=json.dumps({"returnFormat":"json","type":dt,"tags":"Feed-%","to_ids":                                                                                      "yes","includeEventTags":"yes","includeContext":"yes"})
+      mispvalue='misp-'
+      if(dt=='domain'):
+        mispvalue=mispvalue + 'domain'
+      if(dt=='ip-%'):
+        mispvalue=mispvalue + 'ip'
+
+      headers={'Authorization':mispKey,'Accept':'application/json','Content-type':'application/json'}
+      data=json.dumps({"returnFormat":"json","type":dt,"tags":"Feed-%","to_ids":"yes","includeEventTags":"yes","includeContext":"yes"})
+
       try:
-        response = requests.post('https://192.168.0.13/attributes/restSearch',headers=headers,data=data,verify=False)                                                                                     aders=headers,data=data,verify=False)
+        response = requests.post('https://{0}/attributes/restSearch'.format(mispAddress),headers=headers,data=data,verify=False)
         data=response.json()
         if(data):
+          responseArr=[]
           for item in data["response"]["Attribute"]:
-            valueCheck=client.get(item['value'])
-            if(valueCheck):
-              valuearr=[]
-              temparr=[]
-              mispvalue='misp-' + item['type']
-              valuearr.append(valueCheck)
-              valuearr.append(mispvalue)
-              for arritem in valuearr:
-                if arritem not in temparr:
-                  temparr.append(arritem)
-              client.set(str(item['value']), temparr, 2100)
-            else:
-              client.set(str(item['value']), 'misp-' + item['type'], 2100)
+            responseArr.append(item['value'])
+
+          valueCheck=client.get_many(responseArr)
+          for k in responseArr:
+            valueArr=[]
+            tempArr=[]
+            tempArr.append(mispvalue)
+            if k in valueCheck:
+              val=valueCheck[k].decode()
+              for key in val:
+                valueArr.append(key)
+              for item in valueArr:
+                if item not in tempArr:
+                  tempArr.append(item)
+            client.set(k,tempArr, 300)
 
       except Exception as e:
         with open('/var/log/misppullLog.txt','a') as file:
-          file.write('{0} - mispFeed-script failed with error: {1} \n'.format(str(time.asctime()),str(e)))                                                                                      r(time.asctime()), str(e)))
+          file.write('{0} - mispFeed-script failed with error: {1} \n'.format(str(time.asctime()), str(e)))
 
 
 if __name__=='__main__':
   mispToMemcache().run()
-
