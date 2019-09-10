@@ -6,6 +6,7 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from pymemcache.client.base import Client
 import json
 import time
+import helperScripts.strHelpScript as strHelper
 
 class mispToMemcache():
 
@@ -43,8 +44,7 @@ class mispToMemcache():
             tempArr.append(mispvalue)
             if k in valueCheck:
               val=valueCheck[k].decode()
-              for key in val:
-                valueArr.append(key)
+              valueArr=strHelper(val)
               for item in valueArr:
                 if item not in tempArr:
                   tempArr.append(item)
