@@ -6,16 +6,24 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from pymemcache.client.base import Client
 import json
 import time
-import helperScripts.strHelpScript as strHelper
 
 class mispToMemcache():
+
+  def stringHelper(inputVar):
+    testVar=list(inputVar.split(','))
+    outVar=[]
+    for i in testVar:
+      outVar.append(i.translate({ord(k): None for k in "'[]{} "}))
+
+    return outVar
+
 
   def run(self):
 
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
     client = Client(('127.0.0.1', 11211))
-    mispKey='<MISPKEY>'
+    mispKey='<MISP-API-KEY>'
     dataTypes={'domain', 'ip-%'}
     mispAddress='192.168.0.13'
 
@@ -44,7 +52,7 @@ class mispToMemcache():
             tempArr.append(mispvalue)
             if k in valueCheck:
               val=valueCheck[k].decode()
-              valueArr=strHelper(val)
+              valueArr=mispToMemcache.stringHelper(val)
               for item in valueArr:
                 if item not in tempArr:
                   tempArr.append(item)
@@ -57,3 +65,4 @@ class mispToMemcache():
 
 if __name__=='__main__':
   mispToMemcache().run()
+
