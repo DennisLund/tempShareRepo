@@ -7,6 +7,15 @@ import time
 
 class ransomwareToMemcache():
 
+  def stringHelper(inputVar):
+    testVar=list(inputVar.split(','))
+    outVar=[]
+    for i in testVar:
+      outVar.append(i.translate({ord(k): None for k in "'[]{} "}))
+
+    return outVar
+
+
   def run(self):
 
     client = Client(('127.0.0.1', 11211))
@@ -37,8 +46,7 @@ class ransomwareToMemcache():
             tempArr.append(rwtvalue)
             if k in valueCheck:
               val=valueCheck[k].decode()
-              for key in val:
-                valueArr.append(key)
+              valueArr=ransomwareToMemcache.stringHelper(val)
               for item in valueArr:
                 if item not in tempArr:
                   tempArr.append(item)
