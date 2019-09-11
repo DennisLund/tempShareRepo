@@ -4,9 +4,17 @@
 import requests
 from pymemcache.client.base import Client
 import time
-import helperScripts.strHelpScript as strHelper
 
 class talosToMemcache():
+
+  def stringHelper(inputVar):
+    testVar=list(inputVar.split(','))
+    outVar=[]
+    for i in testVar:
+      outVar.append(i.translate({ord(k): None for k in "'[]{} "}))
+
+    return outVar
+
 
   def run(self):
 
@@ -28,7 +36,7 @@ class talosToMemcache():
           tempArr.append(talosvalue)
           if k in valueCheck:
             val=valueCheck[k].decode()
-            valueArr=strHelper(val)
+            valueArr=talosToMemcache.stringHelper(val)
             for item in valueArr:
               if item not in tempArr:
                 tempArr.append(item)
@@ -40,3 +48,4 @@ class talosToMemcache():
 
 if __name__ == '__main__':
   talosToMemcache().run()
+
